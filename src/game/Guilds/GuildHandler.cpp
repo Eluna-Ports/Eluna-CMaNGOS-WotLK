@@ -27,6 +27,9 @@
 #include "Guilds/GuildMgr.h"
 #include "Social/SocialMgr.h"
 #include "Calendar/Calendar.h"
+#ifdef BUILD_ELUNA
+#include "LuaEngine/LuaEngine.h"
+#endif
 
 void WorldSession::HandleGuildQueryOpcode(WorldPacket& recvPacket)
 {
@@ -62,6 +65,22 @@ void WorldSession::HandleGuildCreateOpcode(WorldPacket& recvPacket)
     }
 
     sGuildMgr.AddGuild(guild);
+}
+
+void WorldSession::SendGuildInvite(Player* player)
+{
+    Guild* guild = sGuildMgr.GetGuildById(GetPlayer()->GetGuildId());
+    if (!guild)
+        return;
+
+    player->SetGuildIdInvited(GetPlayer()->GetGuildId());
+    // Put record into guildlog
+    guild->LogGuildEvent(GUILD_EVENT_LOG_INVITE_PLAYER, GetPlayer()->GetObjectGuid(), player->GetObjectGuid());
+
+    WorldPacket data(SMSG_GUILD_INVITE, (8 + 10));          // guess size
+    data << GetPlayer()->GetName();
+    data << guild->GetName();
+    player->GetSession()->SendPacket(data);
 }
 
 void WorldSession::HandleGuildInviteOpcode(WorldPacket& recvPacket)
@@ -928,6 +947,11 @@ void WorldSession::HandleGuildBankDepositMoney(WorldPacket& recv_data)
 
     // log
     pGuild->LogBankEvent(GUILD_BANK_LOG_DEPOSIT_MONEY, uint8(0), GetPlayer()->GetGUIDLow(), money);
+
+#ifdef BUILD_ELUNA
+    // used by eluna
+    sEluna->OnMemberDepositMoney(pGuild, GetPlayer(), money);
+#endif
 
     pGuild->DisplayGuildBankTabsInfo(this);
     pGuild->DisplayGuildBankContent(this, 0);

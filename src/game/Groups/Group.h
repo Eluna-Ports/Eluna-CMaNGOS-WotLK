@@ -159,6 +159,7 @@ class Group
         uint32 GetId() const { return m_Id; }
         ObjectGuid GetObjectGuid() const { return ObjectGuid(HIGHGUID_GROUP, GetId()); }
         std::string GetGuidStr() const { return GetObjectGuid().GetString(); }
+
         bool IsFull() const { return (m_groupFlags == GROUP_FLAG_NORMAL) ? (m_memberSlots.size() >= MAX_GROUP_SIZE) : (m_memberSlots.size() >= MAX_RAID_SIZE); }
         bool IsRaidGroup() const { return (m_groupFlags & GROUP_FLAG_RAID) != 0; }
         bool IsLFGGroup() const { return (m_groupFlags & GROUP_FLAG_LFG) != 0; }
