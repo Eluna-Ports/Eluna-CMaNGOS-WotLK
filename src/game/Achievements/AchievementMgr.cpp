@@ -46,6 +46,10 @@
 #include "Policies/Singleton.h"
 #include "World/WorldStateExpression.h"
 
+#ifdef BUILD_ELUNA
+#include "LuaEngine/LuaEngine.h"
+#endif
+
 INSTANTIATE_SINGLETON_1(AchievementGlobalMgr);
 
 namespace MaNGOS
@@ -2298,6 +2302,11 @@ void AchievementMgr::CompletedAchievement(AchievementEntry const* achievement)
         sAchievementMgr.SetRealmCompleted(achievement);
 
     UpdateAchievementCriteria(ACHIEVEMENT_CRITERIA_TYPE_COMPLETE_ACHIEVEMENT);
+
+#ifdef BUILD_ELUNA
+    if (Eluna* e = GetPlayer()->GetEluna())
+        e->OnAchievementComplete(GetPlayer(), achievement->ID);
+#endif
 
     // reward items and titles if any
     AchievementReward const* reward = sAchievementMgr.GetAchievementReward(achievement, GetPlayer()->getGender());

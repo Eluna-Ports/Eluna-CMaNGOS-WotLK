@@ -34,6 +34,11 @@
 #include "Maps/MapPersistentStateMgr.h"
 #include "Spells/SpellAuras.h"
 #include "BattleGround/BattleGroundMgr.h"
+
+#ifdef BUILD_ELUNA
+#include "LuaEngine/LuaEngine.h"
+#endif
+
 #ifdef BUILD_DEPRECATED_PLAYERBOT
 #include "PlayerBot/Base/PlayerbotMgr.h"
 #include "Config/Config.h"
@@ -154,6 +159,10 @@ bool Group::Create(ObjectGuid guid, const char* name)
         CharacterDatabase.CommitTransaction();
 
     _updateLeaderFlag();
+#ifdef BUILD_ELUNA
+    if (Eluna* e = sWorld.GetEluna())
+        e->OnCreate(this, m_leaderGuid, m_groupFlags);
+#endif
 
     return true;
 }
@@ -268,6 +277,12 @@ bool Group::AddInvite(Player* player)
 
     player->SetGroupInvite(this);
 
+#ifdef BUILD_ELUNA
+    // used by eluna
+    if (Eluna* e = sWorld.GetEluna())
+        e->OnInviteMember(this, player->GetObjectGuid());
+#endif
+
     return true;
 }
 
@@ -351,6 +366,12 @@ bool Group::AddMember(ObjectGuid guid, const char* name)
         }
         player->SetGroupUpdateFlag(GROUP_UPDATE_FULL);
         UpdatePlayerOutOfRange(player);
+
+#ifdef BUILD_ELUNA
+        // used by eluna
+        if (Eluna* e = sWorld.GetEluna())
+            e->OnAddMember(this, player->GetObjectGuid());
+#endif
 
         // quest related GO state dependent from raid membership
         if (IsRaidGroup())
@@ -481,6 +502,12 @@ uint32 Group::RemoveMember(ObjectGuid guid, uint8 method)
     else
         Disband(true);
 
+#ifdef BUILD_ELUNA
+    // used by eluna
+    if (Eluna* e = sWorld.GetEluna())
+        e->OnRemoveMember(this, guid, method);
+#endif
+
     return m_memberSlots.size();
 }
 
@@ -489,6 +516,12 @@ void Group::ChangeLeader(ObjectGuid guid)
     member_citerator slot = _getMemberCSlot(guid);
     if (slot == m_memberSlots.end())
         return;
+
+#ifdef BUILD_ELUNA
+    // used by eluna
+    if (Eluna* e = sWorld.GetEluna())
+        e->OnChangeLeader(this, guid, GetLeaderGuid());
+#endif
 
     _setLeader(guid);
 
@@ -563,6 +596,10 @@ void Group::Disband(bool hideDestroy)
     }
 
     _updateLeaderFlag(true);
+#ifdef BUILD_ELUNA
+    if (Eluna* e = sWorld.GetEluna())
+        e->OnDisband(this);
+#endif
     m_leaderGuid.Clear();
     m_leaderName.clear();
 }

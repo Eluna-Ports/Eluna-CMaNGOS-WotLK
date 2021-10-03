@@ -33,6 +33,9 @@
 #include "Grids/GridNotifiersImpl.h"
 #include "Chat/Chat.h"
 #include "World/WorldStateDefines.h"
+#ifdef BUILD_ELUNA
+#include "LuaEngine/LuaEngine.h"
+#endif
 
 namespace MaNGOS
 {
@@ -460,6 +463,11 @@ void BattleGround::Update(uint32 diff)
             m_events |= BG_STARTING_EVENT_4;
 
             StartingEventOpenDoors();
+			
+#ifdef BUILD_ELUNA
+            if (Eluna* e = GetBgMap()->GetEluna())
+                e->OnBGStart(this, GetTypeId(), GetInstanceId());
+#endif
 
             if (m_startMessageIds[BG_STARTING_EVENT_FOURTH])
                 SendMessageToAll(m_startMessageIds[BG_STARTING_EVENT_FOURTH], CHAT_MSG_BG_SYSTEM_NEUTRAL);
@@ -773,6 +781,11 @@ void BattleGround::UpdateWorldStateForPlayer(uint32 field, uint32 value, Player*
 */
 void BattleGround::EndBattleGround(Team winner)
 {
+#ifdef BUILD_ELUNA
+    if (Eluna* e = GetBgMap()->GetEluna())
+        e->OnBGEnd(this, GetTypeId(), GetInstanceId(), winner);
+#endif
+
     this->RemovedFromBgFreeSlotQueue(true);
 
     ArenaTeam* winner_arena_team = nullptr;
@@ -1497,6 +1510,11 @@ void BattleGround::StartBattleGround()
     // This must be done here, because we need to have already invited some players when first BG::Update() method is executed
     // and it doesn't matter if we call StartBattleGround() more times, because m_BattleGrounds is a map and instance id never changes
     sBattleGroundMgr.AddBattleGround(GetInstanceId(), GetTypeId(), this);
+
+#ifdef BUILD_ELUNA
+    if (Eluna* e = GetBgMap()->GetEluna())
+        e->OnBGCreate(this, GetTypeId(), GetInstanceId());
+#endif
 }
 
 /**
