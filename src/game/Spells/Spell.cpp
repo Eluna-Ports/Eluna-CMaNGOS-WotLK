@@ -55,6 +55,10 @@
 #endif
 #include "Entities/Transports.h"
 
+#ifdef BUILD_ELUNA
+#include "LuaEngine/LuaEngine.h"
+#endif
+
 extern pEffect SpellEffects[MAX_SPELL_EFFECTS];
 
 class PrioritizeManaUnitWraper
@@ -3717,6 +3721,16 @@ SpellCastResult Spell::cast(bool skipCheck)
     // traded items have trade slot instead of guid in m_itemTargetGUID
     // set to real guid to be sent later to the client
     m_targets.updateTradeSlotItem();
+
+#ifdef BUILD_ELUNA
+    // used by eluna
+    if (m_caster)
+    {
+        if (m_caster->GetTypeId() == TYPEID_PLAYER)
+            if (Eluna* e = m_caster->GetEluna())
+                e->OnSpellCast(m_caster->ToPlayer(), this, skipCheck);
+    }
+#endif
 
     m_duration = CalculateSpellDuration(m_spellInfo, m_caster, nullptr, m_auraScript);
 

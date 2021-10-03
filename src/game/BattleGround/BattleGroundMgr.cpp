@@ -43,6 +43,9 @@
 #include "Tools/Formulas.h"
 #include "Mails/Mail.h"
 #include "Loot/LootMgr.h"
+#ifdef BUILD_ELUNA
+#include "LuaEngine/LuaEngine.h"
+#endif
 
 #include "Policies/Singleton.h"
 
