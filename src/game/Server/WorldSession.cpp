@@ -49,6 +49,10 @@
 #include <cstdarg>
 #include <iostream>
 
+#ifdef BUILD_ELUNA
+#include "LuaEngine/LuaEngine.h"
+#endif
+
 #ifdef ENABLE_PLAYERBOTS
 #include "playerbot/playerbot.h"
 #endif
@@ -746,6 +750,11 @@ void WorldSession::LogoutPlayer()
         uint32 guid = _player->GetGUIDLow();
 #endif
 
+#ifdef BUILD_ELUNA
+        if (Eluna* e = sWorld.GetEluna())
+            e->OnLogout(_player);
+#endif
+
         ///- Remove the player from the world
         // the player may not be in the world when logging out
         // e.g if he got disconnected during a transfer to another map
@@ -1237,6 +1246,12 @@ static bool IsCharacterActionOpcode(Opcodes opcode)
 
 void WorldSession::ExecuteOpcode(OpcodeHandler const& opHandle, WorldPacket& packet)
 {
+#ifdef BUILD_ELUNA
+    if (Eluna* e = sWorld.GetEluna())
+        if (!e->OnPacketReceive(this, packet))
+            return;
+#endif
+
     if (_player && _player->HasCharmer() && IsCharacterActionOpcode(packet.GetOpcode()))
     {
         m_anticheat->CharmedAction(packet.GetOpcode());
