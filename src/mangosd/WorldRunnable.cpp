@@ -25,6 +25,9 @@
 #include "WorldRunnable.h"
 #include "Util/Timer.h"
 #include "Maps/MapManager.h"
+#ifdef BUILD_ELUNA
+#include "LuaEngine/LuaEngine.h"
+#endif
 
 #include "Database/DatabaseEnv.h"
 
@@ -66,6 +69,10 @@ struct TimeBeginRAII
 /// Heartbeat for the World
 void WorldRunnable::run()
 {
+#ifdef BUILD_ELUNA
+    sEluna->OnStartup();
+#endif
+
     TimeBeginRAII raii;
 
     ///- Init new SQL thread for the world database
@@ -104,9 +111,13 @@ void WorldRunnable::run()
         while (m_ServiceStatus == 2) Sleep(1000);
 #endif
     }
-
+#ifdef BUILD_ELUNA
+    sEluna->OnShutdown();
+#endif
     sWorld.CleanupsBeforeStop();
-
+#ifdef BUILD_ELUNA
+    Eluna::Uninitialize();
+#endif
     ///- End the database thread
     WorldDatabase.ThreadEnd();                              // free mySQL thread resources
 }
