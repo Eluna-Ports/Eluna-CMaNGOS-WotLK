@@ -1537,6 +1537,7 @@ class Player : public Unit
         }
         uint32 GetReqKillOrCastCurrentCount(uint32 quest_id, int32 entry) const;
         void AreaExploredOrEventHappens(uint32 questId);
+        void GroupEventHappens(uint32 quest_id, WorldObject const* pEventObject);
         void ItemAddedQuestCheck(uint32 entry, uint32 count);
         void ItemRemovedQuestCheck(uint32 entry, uint32 count);
         void KilledMonster(CreatureInfo const* cInfo, Creature const* creature);
@@ -1626,6 +1627,9 @@ class Player : public Unit
         void RegenerateHealth(uint32 diff);
 
         uint32 GetMoney() const { return GetUInt32Value(PLAYER_FIELD_COINAGE); }
+#ifdef BUILD_ELUNA
+        void ModifyMoney(int32 d);
+#else
         void ModifyMoney(int32 d)
         {
             if (d < 0)
@@ -1637,6 +1641,7 @@ class Player : public Unit
             if (GetMoney() >= MAX_MONEY_AMOUNT)
                 SendEquipError(EQUIP_ERR_TOO_MUCH_GOLD, nullptr, nullptr);
         }
+#endif
         void SetMoney(uint32 value)
         {
             SetUInt32Value(PLAYER_FIELD_COINAGE, value);
@@ -1734,7 +1739,11 @@ class Player : public Unit
 #endif
 
         uint32 GetFreeTalentPoints() const { return GetUInt32Value(PLAYER_CHARACTER_POINTS1); }
+#ifdef BUILD_ELUNA
+        void SetFreeTalentPoints(uint32 points);
+#else
         void SetFreeTalentPoints(uint32 points) { SetUInt32Value(PLAYER_CHARACTER_POINTS1, points); }
+#endif
         void UpdateFreeTalentPoints(bool resetIfNeed = true);
         bool resetTalents(bool no_cost = false, bool all_specs = false);
         uint32 resetTalentsCost() const;
@@ -1744,6 +1753,7 @@ class Player : public Unit
         void SendTalentsInfoData(bool pet);
         void LearnTalent(uint32 talentId, uint32 talentRank);
         void LearnPetTalent(ObjectGuid petGuid, uint32 talentId, uint32 talentRank);
+        bool HasTalent(uint32 spell_id, uint8 spec) const;
 
         uint32 CalculateTalentsPoints() const;
 
@@ -1783,6 +1793,18 @@ class Player : public Unit
         void ResetSpellModsDueToCanceledSpell(std::set<SpellModifierPair>& usedAuraCharges);
         void SetSpellClass(uint8 playerClass);
         SpellFamily GetSpellClass() const { return m_spellClassName; } // client function equivalent - says what player can cast
+
+        bool HasSpellCooldown(uint32 spell_id) const
+        {
+            SpellCooldowns::const_iterator itr = m_spellCooldowns.find(spell_id);
+            return itr != m_spellCooldowns.end() && itr->second.end > time(NULL);
+        }
+        time_t GetSpellCooldownDelay(uint32 spell_id) const
+        {
+            SpellCooldowns::const_iterator itr = m_spellCooldowns.find(spell_id);
+            time_t t = time(NULL);
+            return itr != m_spellCooldowns.end() && itr->second.end > t ? itr->second.end - t : 0;
+        }
 
         void SetResurrectRequestData(ObjectGuid guid, uint32 mapId, float X, float Y, float Z, uint32 health, uint32 mana, bool ghoul)
         {
@@ -1839,6 +1861,12 @@ class Player : public Unit
         void DuelComplete(DuelCompleteType type);
         void SendDuelCountdown(uint32 counter) const;
 
+        bool IsGroupVisibleFor(Player* player) const;
+        bool IsInSameGroupWith(Player const* player) const;
+        bool IsInSameRaidWith(Player const* player) const
+        {
+            return player == this || (GetGroup() != NULL && GetGroup() == player->GetGroup());
+        }
         void UninviteFromGroup();
         static void RemoveFromGroup(Group* group, ObjectGuid guid);
         void RemoveFromGroup() { RemoveFromGroup(GetGroup(), GetObjectGuid()); }
@@ -2024,6 +2052,7 @@ class Player : public Unit
         inline int16 GetSkillBonusPermanent(uint16 id) const { return GetSkillBonus(id, true); }    // skill perm. bonus
         inline int16 GetSkillBonusTemporary(uint16 id) const { return GetSkillBonus(id); }          // skill temp bonus
         void UpdateSkillsForLevel(bool maximize = false);
+        void UpdateSkillsToMaxSkillsForLevel();
         void UpdateSkillTrainedSpells(uint16 id, uint16 currVal);                                   // learns/unlearns spells dependent on a skill
         void UpdateSpellTrainedSkills(uint32 spellId, bool apply);                                  // learns/unlearns skills dependent on a spell
         void LearnDefaultSkills();
@@ -2047,6 +2076,7 @@ class Player : public Unit
 
         static Team TeamForRace(uint8 race);
         Team GetTeam() const { return m_team; }
+        PvpTeamIndex GetTeamId() const { return m_team == ALLIANCE ? TEAM_INDEX_ALLIANCE : TEAM_INDEX_HORDE; }
         static uint32 getFactionForRace(uint8 race);
         void setFactionForRace(uint8 race);
 
@@ -2554,6 +2584,7 @@ class Player : public Unit
         // cooldown system
         virtual void AddGCD(SpellEntry const& spellEntry, uint32 forcedDuration = 0, bool updateClient = false) override;
         virtual void AddCooldown(SpellEntry const& spellEntry, ItemPrototype const* itemProto = nullptr, bool permanent = false, uint32 forcedDuration = 0, bool ignoreCat = false) override;
+        void RemoveSpellCooldown(uint32 spell_id, bool updateClient = false);
         virtual void RemoveSpellCooldown(SpellEntry const& spellEntry, bool updateClient = true) override;
         virtual void RemoveSpellCategoryCooldown(uint32 category, bool updateClient = true) override;
         virtual void RemoveAllCooldowns(bool sendOnly = false) override;
@@ -2756,6 +2787,7 @@ class Player : public Unit
 
         PlayerMails m_mail;
         PlayerSpellMap m_spells;
+        SpellCooldowns m_spellCooldowns;
         PlayerTalentMap m_talents[MAX_TALENT_SPEC_COUNT];
         uint32 m_lastPotionId;                              // last used health/mana potion in combat, that block next potion use
         uint32 m_triggerCoooldownOnLeaveCombatSpellId;

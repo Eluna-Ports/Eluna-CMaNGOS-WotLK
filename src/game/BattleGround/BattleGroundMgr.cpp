@@ -43,6 +43,9 @@
 #include "Tools/Formulas.h"
 #include "Mails/Mail.h"
 #include "Loot/LootMgr.h"
+#ifdef BUILD_ELUNA
+#include "LuaEngine/LuaEngine.h"
+#endif
 
 #include "Policies/Singleton.h"
 
@@ -578,6 +581,10 @@ uint32 BattleGroundMgr::CreateBattleGround(BattleGroundTypeId bgTypeId, bool IsA
 
     // add bg to update list
     AddBattleGround(bg->GetInstanceId(), bg->GetTypeId(), bg);
+
+#ifdef BUILD_ELUNA
+    sEluna->OnBGCreate(bg, bgTypeId, bg->GetInstanceId());
+#endif
 
     // return some not-null value, bgTypeId is good enough for me
     return bgTypeId;
