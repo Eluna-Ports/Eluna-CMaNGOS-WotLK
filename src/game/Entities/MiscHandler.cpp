@@ -43,6 +43,9 @@
 #include "Social/SocialMgr.h"
 #include "Server/DBCEnums.h"
 #include "GMTickets/GMTicketMgr.h"
+#ifdef BUILD_ELUNA
+#include "LuaEngine/LuaEngine.h"
+#endif
 
 void WorldSession::HandleRepopRequestOpcode(WorldPacket& recv_data)
 {
@@ -66,6 +69,11 @@ void WorldSession::HandleRepopRequestOpcode(WorldPacket& recv_data)
         DEBUG_LOG("HandleRepopRequestOpcode: got request after player %s(%d) was killed and before he was updated", GetPlayer()->GetName(), GetPlayer()->GetGUIDLow());
         GetPlayer()->KillPlayer();
     }
+
+#ifdef BUILD_ELUNA
+    // used by eluna
+    sEluna->OnRepop(GetPlayer());
+#endif
 
     // this is spirit release confirm?
     GetPlayer()->RemovePet(PET_SAVE_REAGENTS);
