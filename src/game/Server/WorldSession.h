@@ -454,6 +454,7 @@ class WorldSession
         void SendNotInArenaTeamPacket(uint8 type) const;
         void SendPetitionShowList(ObjectGuid guid) const;
         void SendSaveGuildEmblem(uint32 msg) const;
+        void SendGuildInvite(Player* player);
 
         // LFG - Wotlk
         void SendLfgDisabled();
