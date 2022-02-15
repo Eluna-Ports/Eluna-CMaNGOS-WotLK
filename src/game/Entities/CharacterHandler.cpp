@@ -959,6 +959,19 @@ void WorldSession::HandlePlayerLogin(LoginQueryHolder* holder)
     sEluna->OnLogin(pCurrChar);
 #endif
 
+#ifdef BUILD_SOLOCRAFT
+    bool SoloCraftEnable = sWorld.getConfig(CONFIG_BOOL_SOLOCRAFT_ENABLED);
+    bool SoloCraftAnnounceModule = sWorld.getConfig(CONFIG_BOOL_SOLOCRAFT_ANNOUNCE);
+
+    if (SoloCraftEnable)
+    {
+        if (SoloCraftAnnounceModule)
+        {
+            ChatHandler(pCurrChar->GetSession()).SendSysMessage("This server is running |cff4CFF00SPP SoloCraft Custom |rmodule.");
+        }
+    }
+#endif
+
     // Handle Login-Achievements (should be handled after loading)
     pCurrChar->GetAchievementMgr().UpdateAchievementCriteria(ACHIEVEMENT_CRITERIA_TYPE_ON_LOGIN, 1);
 

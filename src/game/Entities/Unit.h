@@ -1428,6 +1428,9 @@ class Unit : public WorldObject
         void SetMaxHealth(uint32 val);
         void SetHealthPercent(float percent);
         float ModifyHealth(float dVal);
+#ifdef BUILD_SOLOCRAFT
+        void SetFullHealth() { SetHealth(GetMaxHealth()); }
+#endif
         float OCTRegenHPPerSpirit() const;
         float OCTRegenMPPerSpirit() const;
 
