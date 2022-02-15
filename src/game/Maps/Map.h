@@ -238,6 +238,9 @@ class Map : public GridRefManager<NGridType>
         bool Instanceable() const { return i_mapEntry && i_mapEntry->Instanceable(); }
         bool IsDungeon() const { return i_mapEntry && i_mapEntry->IsDungeon(); }
         bool IsRaid() const { return i_mapEntry && i_mapEntry->IsRaid(); }
+#ifdef BUILD_SOLOCRAFT
+        bool Is25ManRaid() const { return IsRaid() && i_spawnMode & RAID_DIFFICULTY_MASK_25MAN; }
+#endif
         bool IsNonRaidDungeon() const { return i_mapEntry && i_mapEntry->IsNonRaidDungeon(); }
         bool IsRaidOrHeroicDungeon() const { return IsRaid() || GetDifficulty() > DUNGEON_DIFFICULTY_NORMAL; }
         bool IsHeroic() const { return IsRaid() ? i_spawnMode >= RAID_DIFFICULTY_10MAN_HEROIC : i_spawnMode >= DUNGEON_DIFFICULTY_HEROIC; }
@@ -437,6 +440,31 @@ class Map : public GridRefManager<NGridType>
         void SetNavTile(uint32 tileX, uint32 tileY, uint32 tileNumber);
 
         void AwardLFGRewards(uint32 dungeonId);
+
+#ifdef BUILD_SOLOCRAFT
+        bool SoloCraftDebuffEnable = 1;
+        float SoloCraftSpellMult = 1.0;
+        float SoloCraftStatsMult = 100.0;
+        uint32 SolocraftLevelDiff = 1;
+        std::map<uint32, float> _unitDifficulty;
+        std::unordered_map<uint32, uint32> dungeons;
+        std::unordered_map<uint32, float> diff_Multiplier;
+        std::unordered_map<uint32, float> diff_Multiplier_Heroics;
+        uint32 SolocraftDungeonLevel = 1;
+        float D5 = 1.0;
+        float D10 = 1.0;
+        float D25 = 1.0;
+        float D40 = 1.0;
+        float D649H10 = 1.0;
+        float D649H25 = 1.0;
+
+        int CalculateDifficulty(Map* map, Player* /*player*/);
+        int CalculateDungeonLevel(Map* map, Player* /*player*/);
+        int GetNumInGroup(Player* player);
+        void ApplyBuffs(Player* player, Map* map, float difficulty, int dunLevel, int numInGroup);
+        float GetGroupDifficulty(Player* player);
+        void ClearBuffs(Player* player, Map* map);
+#endif
 
     private:
         void LoadMapAndVMap(int gx, int gy);
