@@ -156,7 +156,8 @@ bool Guild::Create(Player* leader, std::string gname)
 
 #ifdef BUILD_ELUNA
     // used by eluna
-    sEluna->OnCreate(this, leader, gname.c_str());
+    if (Eluna* e = sWorld.GetEluna())
+        e->OnCreate(this, leader, gname.c_str());
 #endif
 
     return AddMember(m_LeaderGuid, (uint32)GR_GUILDMASTER);
@@ -262,7 +263,8 @@ bool Guild::AddMember(ObjectGuid plGuid, uint32 plRank)
 
 #ifdef BUILD_ELUNA
     // used by eluna
-    sEluna->OnAddMember(this, pl, newmember.RankId);
+    if (Eluna* e = sWorld.GetEluna())
+        e->OnAddMember(this, pl, newmember.RankId);
 #endif
 
     return true;
@@ -278,7 +280,8 @@ void Guild::SetMOTD(std::string motd)
 
 #ifdef BUILD_ELUNA
     // used by eluna
-    sEluna->OnMOTDChanged(this, motd);
+    if (Eluna* e = sWorld.GetEluna())
+        e->OnMOTDChanged(this, motd);
 #endif
 }
 
@@ -292,7 +295,8 @@ void Guild::SetGINFO(std::string ginfo)
 
 #ifdef BUILD_ELUNA
     // used by eluna
-    sEluna->OnInfoChanged(this, ginfo);
+    if (Eluna* e = sWorld.GetEluna())
+        e->OnInfoChanged(this, ginfo);
 #endif
 }
 
@@ -591,7 +595,8 @@ bool Guild::DelMember(ObjectGuid guid, bool isDisbanding)
 
 #ifdef BUILD_ELUNA
     // used by eluna
-    sEluna->OnRemoveMember(this, player, isDisbanding);
+    if (Eluna* e = sWorld.GetEluna())
+        e->OnRemoveMember(this, player, isDisbanding);
 #endif
 
     return members.empty();
@@ -816,7 +821,8 @@ void Guild::Disband()
 
 #ifdef BUILD_ELUNA
     // used by eluna
-    sEluna->OnDisband(this);
+    if (Eluna* e = sWorld.GetEluna())
+        e->OnDisband(this);
 #endif
 
     sGuildMgr.RemoveGuild(m_Id);
@@ -1328,7 +1334,8 @@ bool Guild::MemberMoneyWithdraw(uint32 amount, uint32 LowGuid)
     Player* player = sObjectMgr.GetPlayer(ObjectGuid(HIGHGUID_PLAYER, LowGuid));
 
     // used by eluna
-    sEluna->OnMemberWitdrawMoney(this, player, amount, false);
+    if (Eluna* e = sWorld.GetEluna())
+        e->OnMemberWitdrawMoney(this, player, amount, false);
 #endif
     return true;
 }
@@ -1725,7 +1732,8 @@ void Guild::LogBankEvent(uint8 EventType, uint8 TabId, uint32 PlayerGuidLow, uin
     }
 #ifdef BUILD_ELUNA
     // used by eluna
-    sEluna->OnBankEvent(this, EventType, TabId, PlayerGuidLow, ItemOrMoney, ItemStackCount, DestTabId);
+    if (Eluna* e = sWorld.GetEluna())
+        e->OnBankEvent(this, EventType, TabId, PlayerGuidLow, ItemOrMoney, ItemStackCount, DestTabId);
 #endif
 
     // save event to database
