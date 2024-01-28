@@ -70,7 +70,7 @@ struct TimeBeginRAII
 void WorldRunnable::run()
 {
 #ifdef BUILD_ELUNA
-    sEluna->OnStartup();
+    sWorld.GetEluna()->OnStartup();
 #endif
 
     TimeBeginRAII raii;
@@ -112,12 +112,11 @@ void WorldRunnable::run()
 #endif
     }
 #ifdef BUILD_ELUNA
-    sEluna->OnShutdown();
+    sWorld.GetEluna()->OnShutdown();
 #endif
+
     sWorld.CleanupsBeforeStop();
-#ifdef BUILD_ELUNA
-    Eluna::Uninitialize();
-#endif
+
     ///- End the database thread
     WorldDatabase.ThreadEnd();                              // free mySQL thread resources
 }
