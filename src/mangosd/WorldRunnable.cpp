@@ -42,7 +42,7 @@ extern int m_ServiceStatus;
 void WorldRunnable::run()
 {
 #ifdef BUILD_ELUNA
-    sEluna->OnStartup();
+    sWorld.GetEluna()->OnStartup();
 #endif
     ///- Init new SQL thread for the world database
     WorldDatabase.ThreadStart();                            // let thread do safe mySQL requests (one connection call enough)
@@ -81,12 +81,11 @@ void WorldRunnable::run()
 #endif
     }
 #ifdef BUILD_ELUNA
-    sEluna->OnShutdown();
+    sWorld.GetEluna()->OnShutdown();
 #endif
+
     sWorld.CleanupsBeforeStop();
-#ifdef BUILD_ELUNA
-    Eluna::Uninitialize();
-#endif
+
     ///- End the database thread
     WorldDatabase.ThreadEnd();                              // free mySQL thread resources
 }

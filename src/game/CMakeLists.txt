@@ -51,28 +51,28 @@ if(NOT BUILD_ELUNA)
   endforeach()
 else()
 # Exclude other cores
-set (EXCLUDE_DIR "LuaEngine/Mangos/")
+set (EXCLUDE_DIR "LuaEngine/methods/Mangos/")
 foreach (TMP_PATH ${LIBRARY_SRCS})
     string (FIND ${TMP_PATH} ${EXCLUDE_DIR} EXCLUDE_DIR_FOUND)
     if (NOT ${EXCLUDE_DIR_FOUND} EQUAL -1)
         list(REMOVE_ITEM LIBRARY_SRCS ${TMP_PATH})
     endif ()
 endforeach()
-set (EXCLUDE_DIR "LuaEngine/VMangos/")
+set (EXCLUDE_DIR "LuaEngine/methods/VMangos/")
 foreach (TMP_PATH ${LIBRARY_SRCS})
     string (FIND ${TMP_PATH} ${EXCLUDE_DIR} EXCLUDE_DIR_FOUND)
     if (NOT ${EXCLUDE_DIR_FOUND} EQUAL -1)
         list(REMOVE_ITEM LIBRARY_SRCS ${TMP_PATH})
     endif ()
 endforeach()
-set (EXCLUDE_DIR "LuaEngine/TrinityCore/")
+set (EXCLUDE_DIR "LuaEngine/methods/TrinityCore/")
 foreach (TMP_PATH ${LIBRARY_SRCS})
     string (FIND ${TMP_PATH} ${EXCLUDE_DIR} EXCLUDE_DIR_FOUND)
     if (NOT ${EXCLUDE_DIR_FOUND} EQUAL -1)
         list(REMOVE_ITEM LIBRARY_SRCS ${TMP_PATH})
     endif ()
 endforeach()
-set (EXCLUDE_DIR "LuaEngine/AzerothCore/")
+set (EXCLUDE_DIR "LuaEngine/methods/AzerothCore/")
 foreach (TMP_PATH ${LIBRARY_SRCS})
     string (FIND ${TMP_PATH} ${EXCLUDE_DIR} EXCLUDE_DIR_FOUND)
     if (NOT ${EXCLUDE_DIR_FOUND} EQUAL -1)
@@ -138,7 +138,9 @@ set(ADDITIONAL_INCLUDE_DIRS
   ${CMAKE_CURRENT_SOURCE_DIR}/BattleGround
   ${CMAKE_CURRENT_SOURCE_DIR}/OutdoorPvP
   ${CMAKE_CURRENT_SOURCE_DIR}/PlayerBot
-  ${CMAKE_CURRENT_SOURCE_DIR}/LuaEngine/CMangos
+  ${CMAKE_CURRENT_SOURCE_DIR}/LuaEngine/
+  ${CMAKE_CURRENT_SOURCE_DIR}/LuaEngine/methods/CMangos
+  ${CMAKE_CURRENT_SOURCE_DIR}/LuaEngine/hooks
   ${CMAKE_SOURCE_DIR}/dep/lualib
   ${CMAKE_BINARY_DIR}
 )
