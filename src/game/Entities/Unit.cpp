@@ -1156,6 +1156,14 @@ void Unit::Kill(Unit* killer, Unit* victim, DamageEffectType damagetype, SpellEn
 
     if (killer)
     {
+#ifdef BUILD_ELUNA
+        // used by eluna
+        if (Creature* killerCre = killer->ToCreature())
+            if (Player* killed = victim->ToPlayer())
+                if(Eluna* e = killed->GetEluna())
+                    e->OnPlayerKilledByCreature(killerCre, killed);
+#endif
+
         // Call KilledUnit for creatures
         if (UnitAI* ai = killer->AI())
             ai->KilledUnit(victim);
@@ -1237,10 +1245,6 @@ void Unit::Kill(Unit* killer, Unit* victim, DamageEffectType damagetype, SpellEn
                 if (OutdoorPvP* outdoorPvP = sOutdoorPvPMgr.GetScript(playerVictim->GetCachedZoneId()))
                     outdoorPvP->HandlePlayerKill(responsiblePlayer, playerVictim);
             }
-#ifdef BUILD_ELUNA
-            // used by eluna
-            sEluna->OnPVPKill(responsiblePlayer, playerVictim);
-#endif
         }
     }
     else                                                // Killed creature
@@ -1249,15 +1253,6 @@ void Unit::Kill(Unit* killer, Unit* victim, DamageEffectType damagetype, SpellEn
     // killing blow achievement
     if (responsiblePlayer)
         responsiblePlayer->UpdateAchievementCriteria(ACHIEVEMENT_CRITERIA_TYPE_GET_KILLING_BLOWS, 1, 0, victim);
-
-#ifdef BUILD_ELUNA
-    if (Creature* killerCre = killer->ToCreature())
-    {
-        // used by eluna
-        if (Player* killed = victim->ToPlayer())
-            sEluna->OnPlayerKilledByCreature(killerCre, killed);
-    }
-#endif
 
     // stop combat
     DEBUG_FILTER_LOG(LOG_FILTER_DAMAGE, "DealDamageAttackStop");
@@ -1443,7 +1438,8 @@ void Unit::JustKilledCreature(Unit* killer, Creature* victim, Player* responsibl
         if (BattleGround* bg = responsiblePlayer->GetBattleGround())
             bg->HandleKillUnit(victim, responsiblePlayer);
         // used by eluna
-        sEluna->OnCreatureKill(responsiblePlayer, victim);
+        if (Eluna* e = responsiblePlayer->GetEluna())
+            e->OnCreatureKill(responsiblePlayer, victim);
     }
 #else
         if (BattleGround* bg = responsiblePlayer->GetBattleGround())
@@ -9323,6 +9319,12 @@ void Unit::SetInCombatState(bool PvP, Unit* enemy)
 
         TriggerAggroLinkingEvent(enemy);
     }
+#ifdef BUILD_ELUNA
+    // used by eluna
+    if (GetTypeId() == TYPEID_PLAYER)
+        if (Eluna* e = ToPlayer()->GetEluna())
+            e->OnPlayerEnterCombat(ToPlayer(), enemy);
+#endif
 }
 
 void Unit::EngageInCombatWith(Unit* enemy)
@@ -9350,7 +9352,8 @@ void Unit::ClearInCombat()
 #ifdef BUILD_ELUNA
     // used by eluna
     if (GetTypeId() == TYPEID_PLAYER)
-        sEluna->OnPlayerLeaveCombat(ToPlayer());
+        if (Eluna* e = ToPlayer()->GetEluna())
+            e->OnPlayerLeaveCombat(ToPlayer());
 #endif
 
     if (GetTypeId() == TYPEID_PLAYER)

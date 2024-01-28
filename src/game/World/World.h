@@ -43,6 +43,9 @@
 #include <array>
 #include <thread>
 
+#ifdef BUILD_ELUNA
+class Eluna;
+#endif
 class Object;
 class ObjectGuid;
 class WorldPacket;
@@ -626,6 +629,7 @@ enum eConfigBoolValues
     CONFIG_BOOL_MMAP_ENABLED,
 #ifdef BUILD_ELUNA
     CONFIG_BOOL_ELUNA_ENABLED,
+    CONFIG_BOOL_ELUNA_COMPATIBILITY,
 #endif
 #ifdef BUILD_SOLOCRAFT
     CONFIG_BOOL_SOLOCRAFT_ENABLED,
@@ -933,6 +937,11 @@ class World
         void StartLFGQueueThread();
         void BroadcastToGroup(ObjectGuid groupGuid, std::vector<WorldPacket> const& packets);
         void BroadcastPersonalized(std::map<ObjectGuid, std::vector<WorldPacket>> const& personalizedPackets);
+
+#ifdef BUILD_ELUNA
+        Eluna* GetEluna() const { return eluna; }
+        Eluna* eluna;
+#endif
     protected:
         void _UpdateGameTime();
         // callback for UpdateRealmCharacters
