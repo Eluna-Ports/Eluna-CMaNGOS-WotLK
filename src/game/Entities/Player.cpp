@@ -11751,7 +11751,10 @@ Item* Player::EquipItem(uint16 pos, Item* pItem, bool update)
 #ifdef BUILD_ELUNA
         // used by eluna
         if (Eluna* e = GetEluna())
-            e->OnEquip(this, pItem2, bag, slot);
+        {
+            e->OnEquip(this, pItem2, bag, slot); // This is depricated and will be removed in the future
+            e->OnItemEquip(this, pItem2, slot);
+        }
 #endif
 
         return pItem2;
@@ -11767,7 +11770,10 @@ Item* Player::EquipItem(uint16 pos, Item* pItem, bool update)
 #ifdef BUILD_ELUNA
     // used by eluna
     if (Eluna* e = GetEluna())
-        e->OnEquip(this, pItem, bag, slot);
+    {
+        e->OnEquip(this, pItem, bag, slot); // This is depricated and will be removed in the future
+        e->OnItemEquip(this, pItem, slot);
+    }
 #endif
 
     return pItem;
@@ -11789,12 +11795,21 @@ void Player::QuickEquipItem(uint16 pos, Item* pItem)
             pItem->AddToWorld();
             pItem->SendCreateUpdateToPlayer(this);
         }
+
         // Apply Titan's Grip damage penalty if necessary
         if ((slot == EQUIPMENT_SLOT_MAINHAND || slot == EQUIPMENT_SLOT_OFFHAND) && CanTitanGrip() && HasTwoHandWeaponInOneHand() && !HasAura(49152))
             CastSpell(this, 49152, TRIGGERED_OLD_TRIGGERED);
 
         GetAchievementMgr().UpdateAchievementCriteria(ACHIEVEMENT_CRITERIA_TYPE_EQUIP_ITEM, pItem->GetEntry());
         GetAchievementMgr().UpdateAchievementCriteria(ACHIEVEMENT_CRITERIA_TYPE_EQUIP_EPIC_ITEM, slot + 1);
+
+#ifdef BUILD_ELUNA
+        if (Eluna* e = GetEluna())
+        {
+            e->OnEquip(this, pItem, (pos >> 8), slot); // This is depricated and will be removed in the future
+            e->OnItemEquip(this, pItem, slot);
+        }
+#endif
     }
 }
 
@@ -11891,6 +11906,11 @@ void Player::RemoveItem(uint8 bag, uint8 slot, bool update)
                     }
                     else if (slot == EQUIPMENT_SLOT_OFFHAND)
                         UpdateWeaponDependantStats(OFF_ATTACK);
+
+#ifdef BUILD_ELUNA
+                    if (Eluna* e = GetEluna())
+                        e->OnItemUnEquip(this, pItem, slot);
+#endif
                 }
             }
             // need update known currency
@@ -12000,10 +12020,6 @@ void Player::DestroyItem(uint8 bag, uint8 slot, bool update)
             ApplyItemOnStoreSpell(pItem, false);
 
         ItemRemovedQuestCheck(pItem->GetEntry(), pItem->GetCount());
-#ifdef BUILD_ELUNA
-        if (Eluna* e = GetEluna())
-            e->OnRemove(this, pItem);
-#endif
 
         if (bag == INVENTORY_SLOT_BAG_0)
         {
@@ -12036,6 +12052,11 @@ void Player::DestroyItem(uint8 bag, uint8 slot, bool update)
 
                 // equipment visual show
                 SetVisibleItemSlot(slot, nullptr);
+
+#ifdef BUILD_ELUNA
+                if (Eluna* e = GetEluna())
+                    e->OnItemUnEquip(this, pItem, slot);
+#endif
             }
             // need update known currency
             else if (slot >= CURRENCYTOKEN_SLOT_START && slot < CURRENCYTOKEN_SLOT_END)
