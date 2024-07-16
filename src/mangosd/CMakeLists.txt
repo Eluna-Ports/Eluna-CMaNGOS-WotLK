@@ -48,10 +48,6 @@ if(WIN32)
   endif()
 endif()
 
-include_directories(
-  ${CMAKE_SOURCE_DIR}/dep/lualib
-)
-
 add_executable(${EXECUTABLE_NAME}
   ${EXECUTABLE_SRCS}
 )
@@ -61,7 +57,6 @@ target_link_libraries(${EXECUTABLE_NAME}
   game
   gsoap
   g3dlite
-  lualib
 )
 
 if(WIN32)
@@ -151,14 +146,8 @@ if (BUILD_ELUNA)
   include_directories(
   ${CMAKE_SOURCE_DIR}/src/game/LuaEngine/hooks
   )
-  add_definitions(-DBUILD_ELUNA -DWOTLK -DCMANGOS)
   install(FILES ${CMAKE_SOURCE_DIR}/contrib/lua_scripts/masterscript.lua DESTINATION ${BIN_DIR}/lua_scripts)
   install(DIRECTORY ${CMAKE_SOURCE_DIR}/src/game/LuaEngine/extensions DESTINATION ${BIN_DIR}/lua_scripts)
-endif()
-
-# Define BUILD_SOLOCRAFT if needed
-if (BUILD_SOLOCRAFT)
-add_definitions(-DBUILD_SOLOCRAFT)
 endif()
 
 if(MSVC)
