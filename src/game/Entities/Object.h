@@ -982,12 +982,7 @@ class WorldObject : public Object
 
     public:
         virtual ~WorldObject();
-
-#ifdef BUILD_ELUNA
-        virtual void Update(uint32 update_diff);
-#else
-        virtual void Update(const uint32 /*diff*/);
-#endif
+        virtual void Update(const uint32 diff);
         virtual void Heartbeat() {}
         virtual uint32 GetHeartbeatDuration() const { return 5000; }
 
