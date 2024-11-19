@@ -70,9 +70,6 @@ Map::~Map()
     if (Eluna* e = GetEluna())
         if (Instanceable())
             e->FreeInstanceId(GetInstanceId());
-
-    delete eluna;
-    eluna = nullptr;
 #endif
     UnloadAll(true);
 
@@ -98,6 +95,11 @@ Map::~Map()
         transport->ResetMap();
         delete transport;
     }
+ 
+#ifdef BUILD_ELUNA
+    delete eluna;
+    eluna = nullptr;
+#endif
 }
 
 uint32 Map::GetCurrentMSTime() const
