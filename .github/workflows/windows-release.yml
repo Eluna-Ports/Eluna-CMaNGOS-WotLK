@@ -1,6 +1,5 @@
 name: Windows Release Build
 
-#
 on:
   schedule:
     # every day at 6am
