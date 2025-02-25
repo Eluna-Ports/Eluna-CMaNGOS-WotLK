@@ -37,6 +37,7 @@
 #include "Utilities/EventProcessor.h"
 #ifdef BUILD_ELUNA
 #include "LuaEngine/LuaValue.h"
+#include "LuaEngine/ElunaEventMgr.h"
 #endif
 
 #include <set>
@@ -982,6 +983,7 @@ class WorldObject : public Object
 
     public:
         virtual ~WorldObject();
+
         virtual void Update(const uint32 diff);
         virtual void Heartbeat() {}
         virtual uint32 GetHeartbeatDuration() const { return 5000; }
@@ -1319,7 +1321,7 @@ class WorldObject : public Object
         // Spell mod owner: static player whose spell mods apply to this unit (server-side)
         virtual Player* GetSpellModOwner() const { return nullptr; }
 #ifdef BUILD_ELUNA
-        ElunaEventProcessor* elunaEvents;
+        std::unique_ptr<ElunaEventProcessor> elunaEvents;
 
         Eluna* GetEluna() const;
 
