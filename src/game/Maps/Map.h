@@ -673,7 +673,7 @@ class Map : public GridRefManager<NGridType>
         std::map<std::pair<uint32, uint32>, uint32> m_tileNumberPerTile;
 
 #ifdef BUILD_ELUNA
-        Eluna* eluna;
+        std::unique_ptr<Eluna> eluna;
 #endif
 };
 
