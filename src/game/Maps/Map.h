@@ -486,7 +486,7 @@ class Map : public GridRefManager<NGridType>
         void UpdateInfinite(Player& player, UpdateData& updateData, GuidSet& clientGUIDs, WorldObjectSet& visibleNow) const;
 
 #ifdef BUILD_ELUNA
-        Eluna* GetEluna() const;
+        Eluna* GetEluna() const { return eluna.get(); }
 
         LuaVal lua_data = LuaVal({});
 #endif
