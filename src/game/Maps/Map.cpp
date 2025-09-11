@@ -276,11 +276,12 @@ Map::Map(uint32 id, time_t expiry, uint32 InstanceId, uint8 SpawnMode)
     m_transportGuids.Set(sMapMgr.GetTransportCounter());
 
 #ifdef BUILD_ELUNA
-    // lua state begins uninitialized
-    eluna = nullptr;
-
     if (sElunaConfig->IsElunaEnabled() && sElunaConfig->ShouldMapLoadEluna(id))
-        eluna = std::make_unique<Eluna>(this);
+        if (!Instanceable())
+        {
+            m_elunaInfo = {ElunaInfoKey::MakeKey(GetId(), GetInstanceId())};
+            sElunaMgr->Create(this, m_elunaInfo);
+        }
 #endif
 }
 
@@ -2363,50 +2364,38 @@ void Map::CreateInstanceData(bool load)
         return;
 
 #ifdef BUILD_ELUNA
+    bool isElunaAI = false;
+
     if (Eluna* e = GetEluna())
     {
         i_data = e->GetInstanceData(this);
 
-        if (!i_data)
-        {
-            if (Instanceable())
-            {
-                if (InstanceTemplate const* mInstance = ObjectMgr::GetInstanceTemplate(GetId()))
-                    i_script_id = mInstance->script_id;
-            }
-            else
-            {
-                if (WorldTemplate const* mInstance = ObjectMgr::GetWorldTemplate(GetId()))
-                    i_script_id = mInstance->script_id;
-            }
-
-            if (!i_script_id)
-                return;
-
-            i_data = sScriptDevAIMgr.CreateInstanceData(this);
-            if (!i_data)
-                return;
-        }
+        if (i_data)
+            isElunaAI = true;
     }
-#else
-    if (Instanceable())
+    if (!isElunaAI)
     {
-        if (InstanceTemplate const* mInstance = ObjectMgr::GetInstanceTemplate(GetId()))
-            i_script_id = mInstance->script_id;
-    }
-    else
-    {
-        if (WorldTemplate const* mInstance = ObjectMgr::GetWorldTemplate(GetId()))
-            i_script_id = mInstance->script_id;
-    }
-
-    if (!i_script_id)
-        return;
-
-    i_data = sScriptDevAIMgr.CreateInstanceData(this);
-    if (!i_data)
-        return;
 #endif
+        if (Instanceable())
+        {
+            if (InstanceTemplate const* mInstance = ObjectMgr::GetInstanceTemplate(GetId()))
+                i_script_id = mInstance->script_id;
+        }
+        else
+        {
+            if (WorldTemplate const* mInstance = ObjectMgr::GetWorldTemplate(GetId()))
+                i_script_id = mInstance->script_id;
+        }
+
+        if (!i_script_id)
+            return;
+
+        i_data = sScriptDevAIMgr.CreateInstanceData(this);
+        if (!i_data)
+            return;
+#ifdef BUILD_ELUNA
+    }
+    #endif
 
     if (load)
     {
