@@ -42,6 +42,7 @@
 #include "World/WorldStateVariableManager.h"
 #ifdef BUILD_ELUNA
 #include "LuaEngine/LuaValue.h"
+#include "LuaEngine/ElunaMgr.h"
 #endif
 
 #include <bitset>
@@ -486,8 +487,7 @@ class Map : public GridRefManager<NGridType>
         void UpdateInfinite(Player& player, UpdateData& updateData, GuidSet& clientGUIDs, WorldObjectSet& visibleNow) const;
 
 #ifdef BUILD_ELUNA
-        Eluna* GetEluna() const { return eluna.get(); }
-
+        Eluna* GetEluna() const { return sElunaMgr->Get(m_elunaInfo); }
         LuaVal lua_data = LuaVal({});
 #endif
 
@@ -673,7 +673,7 @@ class Map : public GridRefManager<NGridType>
         std::map<std::pair<uint32, uint32>, uint32> m_tileNumberPerTile;
 
 #ifdef BUILD_ELUNA
-        std::unique_ptr<Eluna> eluna;
+        ElunaInfo m_elunaInfo;
 #endif
 };
 
