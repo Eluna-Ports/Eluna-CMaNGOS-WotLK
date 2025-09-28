@@ -3056,7 +3056,6 @@ void Player::GiveXP(uint32 xp, Creature* victim, float groupRate)
 // Current player experience not update (must be update by caller)
 void Player::GiveLevel(uint32 level)
 {
-    uint8 oldLevel = GetLevel();
     if (level == GetLevel())
         return;
 
