@@ -991,7 +991,7 @@ void World::LoadConfigSettings(bool reload)
     setConfig(CONFIG_UINT32_ORGRIMMARINSTANCE_LEVEL, "Solocraft.OrgrimmarInstance.Level", 15);
     setConfig(CONFIG_UINT32_MOLTENCORE_LEVEL, "Solocraft.MoltenCore.Level", 60);
     setConfig(CONFIG_UINT32_DIREMAUL_LEVEL, "Solocraft.DireMaul.Level", 48);
-    setConfig(CONFIG_UINT32_BLACKWINGLAIR_LEVEL, "Solocraft.BlackwingLair.Level", 40);
+    setConfig(CONFIG_UINT32_BLACKWINGLAIR_LEVEL, "Solocraft.BlackwingLair.Level", 60);
     setConfig(CONFIG_UINT32_AHNQIRAJ_LEVEL, "Solocraft.AhnQiraj.Level", 60);
     setConfig(CONFIG_UINT32_AHNQIRAJTEMPLE_LEVEL, "Solocraft.AhnQirajTemple.Level", 60);
     //TBC Instances
