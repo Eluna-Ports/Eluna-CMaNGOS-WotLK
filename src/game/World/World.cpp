@@ -1597,6 +1597,7 @@ void World::SetInitialWorldSettings()
 
     sLog.outString("Loading Npc Text Id...");
     sObjectMgr.LoadNpcGossips();                            // must be after load Creature and LoadGossipText
+
     sLog.outString("Loading Scripts random templates...");  // must be before String calls
     sScriptMgr.LoadDbScriptRandomTemplates();
     ///- Load and initialize DBScripts Engine
