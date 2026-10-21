@@ -11,7 +11,7 @@ env:
   BUILD_TYPE: Release
   REPO_DIR: ${{github.workspace}}
   BUILD_DIR: ${{github.workspace}}/bin/builddir
-  BOOST_VERSION: "1.87.0"
+  BOOST_VERSION: "1.92.0"
   BOOST_PLATFORM_VERSION: "26"
   HOMEBREW_NO_AUTO_UPDATE: 1
   HOMEBREW_NO_INSTALL_CLEANUP: 1
